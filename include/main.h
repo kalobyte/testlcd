@@ -25,8 +25,7 @@
 #pragma region Display Update Timer
     #include "gui.h" // printGUI()
     #include <GTimer.h>
-    GTimerCb8<millis> displayTimer(254, printGUI, GTMode::Interval, false);
-#pragma endregion
+ #pragma endregion
 
 // из библиотеки EncButton.h
 Button btnPedal; //педаль с подтяжкой к питанию (активный при замыкании на землю)

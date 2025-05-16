@@ -1,17 +1,8 @@
 #ifndef gui_h
 #define gui_h
 
-#include <Arduino.h>
-#include <LCD.h>
 
-#define LCD_RS     7
-#define LCD_ENABLE 6
-#define LCD_D4     2
-#define LCD_D5     3
-#define LCD_D6     4
-#define LCD_D7     5
-
-LCD lcd(LCD_RS, LCD_ENABLE, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
+void printGUI(LCD *lcd); // прототип функции, чтобы GTimerCb8 видела как callback
 
 /*
 setup
@@ -50,7 +41,4 @@ floats: 3.14 +3e+000 3.141600E+000
 Width trick:    10
 A string
 */
-
-void printGUI(void); // прототип функции, чтобы GTimerCb8 видела как callback
-
 #endif
