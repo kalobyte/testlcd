@@ -21,10 +21,26 @@
     #include <EncButton.h> //!!подключение после дефайнов!!
     EncButtonT<DT, CLK, SW> encoder;
 #pragma endregion
+#include <LCD.h>
+#define LCD_RS     7
+#define LCD_ENABLE 6
+#define LCD_D4     2
+#define LCD_D5     3
+#define LCD_D6     4
+#define LCD_D7     5
+LCD lcd(LCD_RS, LCD_ENABLE, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
+
+void allTicks(void);
+void setBacklight(void);
+void startBanner(void);
+void gateError(void);
+void Inits(void);
+void printGUI(void);
+
 
 #pragma region Display Update Timer
-    #include "gui.h" // printGUI()
     #include <GTimer.h>
+    GTimerCb8<millis> displayTimer(254, printGUI, GTMode::Interval, false);
  #pragma endregion
 
 // из библиотеки EncButton.h
@@ -33,13 +49,6 @@ Button btnElectrodes; // подключить к истокам + резисто
 
 #define BACKLIGHT_PIN 11 //вывод подсветки
 #define PIN_BUZZER 10 
-
-void allTicks(void);
-void setBacklight(void);
-void startBanner(void);
-void gateError(void);
-void Inits(void);
-
 
 /*
     // установить таймаут ожидания кликов, умолч. 500 (макс. 4000 мс)

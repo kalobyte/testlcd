@@ -4,28 +4,28 @@
 #include "settings.h"
 #include "pulse.h" 
 
-
 #pragma region MENU VARS
-struct menu
-{
-  uint8_t P1; //value 1-50 millisec
-  uint8_t T; // value millisec
-  uint8_t P2; //value 1-50 millisec
-  uint16_t S; // value 1-1000 millisec
-  bool isAutoMode; // режим ручной/авто
-  int8_t backlight; // яркость шаги 0-5, !знаковый signed!
-  uint16_t VBat;
-  uint16_t VGate;
-} params;
+  struct 
+  {
+    uint8_t P1 = P1_INITIAL; //value 1-50 millisec
+    uint8_t T  = T_INITIAL; // value millisec
+    uint8_t P2 = P2_INITIAL; //value 1-50 millisec
+    uint16_t S = S_INITIAL; // value 1-1000 millisec
+    bool isAutoMode = false; // режим ручной/авто
+    int8_t backlight = BACKLIGHT_MAX; // яркость шаги 0-5, !знаковый signed!
+    uint16_t VBat;
+    uint16_t VGate;
+  } params;
 #pragma endregion
 
 int8_t arrowPos = 1; // позиция стрелки меню (со знаком минус! signed int)
 bool isItemEdit = false; // false - стрелка выбирает пункты меню, true - пункты редактируются
 
+
 void setup()
 {
   Inits();
-  //Serial.begin(115200);
+//  Serial.begin(115200);
 }
 
 void loop()
@@ -37,7 +37,7 @@ void loop()
   // быстрое сравнение сырых значений, если напряжение затворов вышло за пределы нормы <10v и >15v
   VGateRaw = analogRead(PIN_VGATE); //первым измеряем напряжение затворов
   if (VGateRaw < GATE_ADC_MIN || VGateRaw > GATE_ADC_MAX) gateError(); // gateError() блокирует полностью всю работу
-                                                                       
+                                                                   
   allTicks();
   VBatRaw = analogRead(PIN_VBAT);
   params.VBat = VBatRaw * 50 / 1023; 
@@ -113,7 +113,7 @@ void allTicks(void)
 
 void setBacklight(void)
 {
-  //analogWrite(BACKLIGHT_PIN, params.backlight*51); // шим 255/5 уровней яркости = 51 коэфф
+  analogWrite(BACKLIGHT_PIN, params.backlight*51); // шим 255/5 уровней яркости = 51 коэфф
 }
 
 // дописать останов таймера1, вывод 9 сделать входом или сбросить
@@ -166,7 +166,38 @@ void Inits(void)
   
   btnElectrodes.init(A5, INPUT, HIGH); // замыкание электрода + на - с истоками, вход а5 подключен к истокам и подтянут к земле резистором 100ом
   btnElectrodes.setHoldTimeout(S_INITIAL); // установка задержки электродов
+
   
   //startBanner();
+}
+
+void printGUI(void) // функция вызывается автоматические каждые 300мс
+{ 
+  // строки левой колонки
+  lcd.locate(1,2);  lcd.printf("P1: %2d ms", params.P1);
+  lcd.locate(2,2);  lcd.printf("T: %3d ms", params.T);
+  lcd.locate(3,2);  lcd.printf("P2:%3d ms", params.P2);
+  lcd.locate(4,2);  lcd.printf("S:%4d ms", params.S);
+
+  // строки правой колонки
+  lcd.locate(1,13);  lcd.printf("BL:    %d", params.backlight);
+  lcd.locate(2,13);  lcd.print(F("Mode:"));  params.isAutoMode ? lcd.character(2,20,'A'):lcd.character(2,20,'M');
+  lcd.locate(3,13);  lcd.printf("Bat %1d.%1d", params.VBat/10, params.VBat%10);
+  lcd.locate(4,13);  lcd.printf("Drv %2d.%1d", params.VGate/100, (params.VGate+5) %100/10);
+   
+   
+  // выводим стрелку
+  switch (arrowPos)
+  {
+    case 0: lcd.locate(1, 1);  break;
+    case 1: lcd.locate(2, 1);  break;
+    case 2: lcd.locate(3, 1);  break;
+    case 3: lcd.locate(4, 1);  break;
+    case 4: lcd.locate(1, 12); break;
+    case 5: lcd.locate(2, 12); break;
+  }
+  lcd.write(isItemEdit ? 62 : 126);
+  // идея реализации позиции стрелки на любых координатах черезма массив структуры координат х,у + строку меню
+  // где индекс массива будет равен количеству пунктов меню
 }
 
